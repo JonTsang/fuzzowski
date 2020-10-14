@@ -29,6 +29,10 @@ class SessionPrompt(CommandPrompt):
         """ Contains the full list of commands"""
         commands = super().get_commands()
         commands.update({
+            'help': {
+                'desc': 'Show Shell Commands',
+                'exec': self._cmd_help
+            },
             'env': {
                 'desc': 'Show Session Information',
                 'exec': self._cmd_env
@@ -162,6 +166,29 @@ class SessionPrompt(CommandPrompt):
     # ================================================================#
     # Command handlers                                                #
     # ================================================================#
+
+
+    def _cmd_help(self, tokens):
+        self._print_color('gold', 'Fuzzowski Shell Commands:')
+        print('     help\t\t\t\tShow Shell Commands\n',
+              '    env\t\t\t\tShow Session Information\n',
+              '    goto\t\t\t\tGo to test case by index\n',
+              '    next\t\t\t\tRun next test case\n',
+              '    print\t\t\t\tPrint a test case by index\n',
+              '    poc\t\t\t\tPrint the python poc code of test case by index\n',
+              '    suspects\t\t\t\tprint information about the tests suspected of crashing something\n',
+              '    suspects-del\t\t\tdelete suspect\n',
+              '    disabled-elements\t\t\tList the disabled elements\n',
+              '    disable\t\t\t\tDisable a fuzzing element\n',
+              '    enable\t\t\t\tEnable a disabled element\n',
+              '    fuzz\t\t\t\tFuzz a test case by index\n',
+              '    restart\t\t\t\tLaunch the restarter module to restart the target\n',
+              '    skip\t\t\t\tSkip the actual mutant\n',
+              '    test\t\t\t\tSend the actual case without fuzzing\n',
+              '    crash\t\t\t\tMark test case as crash. Saving the poc in the results folder\n')
+
+
+    # --------------------------------------------------------------- #
 
     def _cmd_disable(self, tokens):
         try:
