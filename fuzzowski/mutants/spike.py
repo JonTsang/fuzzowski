@@ -518,7 +518,7 @@ def s_group(value: bytes, values: List[bytes], name: str = None):
 # --------------------------------------------------------------- #
 
 
-def s_random(value: int, min_length, max_length, num_mutations=25, fuzzable=True, step=None, name=None):
+def s_random(value: bytes, min_length, max_length, num_mutations=25, fuzzable=True, step=None, name=None):
     """
     Generate a random chunk of data while maintaining a copy of the original. A random length range can be specified.
     For a static length, set min/max length to be the same.
