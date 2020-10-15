@@ -515,6 +515,34 @@ def s_group(value: bytes, values: List[bytes], name: str = None):
     group = primitives.Group(value, values, name=name)
     blocks.CURRENT.push(group)
 
+# --------------------------------------------------------------- #
+
+
+def s_random(value, min_length, max_length, num_mutations=25, fuzzable=True, step=None, name=None):
+    """
+    Generate a random chunk of data while maintaining a copy of the original. A random length range can be specified.
+    For a static length, set min/max length to be the same.
+
+    :type  value:         Raw
+    :param value:         Original value
+    :type  min_length:    int
+    :param min_length:    Minimum length of random block
+    :type  max_length:    int
+    :param max_length:    Maximum length of random block
+    :type  num_mutations: int
+    :param num_mutations: (Optional, def=25) Number of mutations to make before reverting to default
+    :type  fuzzable:      bool
+    :param fuzzable:      (Optional, def=True) Enable/disable fuzzing of this primitive
+    :type  step:          int
+    :param step:          (Optional, def=None) If not null, step count between min and max reps, otherwise random
+    :type  name:          str
+    :param name:          (Optional, def=None) Specifying a name gives you direct access to a primitive
+    """
+
+    random_data = primitives.RandomData(value, min_length, max_length, num_mutations, fuzzable, step, name)
+    blocks.CURRENT.push(random_data)
+
+
 # def s_from_file(value, encoding="utf-8", fuzzable=True, max_len=0, name=None, filename=None):
 #     """
 #     Push a value from file onto the current block stack.
