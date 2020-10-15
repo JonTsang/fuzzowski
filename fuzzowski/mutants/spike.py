@@ -518,7 +518,7 @@ def s_group(value: bytes, values: List[bytes], name: str = None):
 # --------------------------------------------------------------- #
 
 
-def s_random(value, min_length, max_length, num_mutations=25, fuzzable=True, step=None, name=None):
+def s_random(value: int, min_length, max_length, num_mutations=25, fuzzable=True, step=None, name=None):
     """
     Generate a random chunk of data while maintaining a copy of the original. A random length range can be specified.
     For a static length, set min/max length to be the same.
@@ -543,6 +543,21 @@ def s_random(value, min_length, max_length, num_mutations=25, fuzzable=True, ste
     random_data = primitives.RandomData(value, min_length, max_length, num_mutations, fuzzable, step, name)
     blocks.CURRENT.push(random_data)
 
+# --------------------------------------------------------------- #
+
+def s_macaddr(value: bytes = None, name: str = None):
+    """
+    Push a hardware address onto the current block stack. 
+    Default value is Local hareware address. 6 Bytes sized BitField
+
+    Args:
+        value:          Default integer value
+        endian:         (Optional, def=LITTLE_ENDIAN) Endianess of the bit field (LITTLE_ENDIAN: <, BIG_ENDIAN: >)
+        name:           (Optional, def=None) Specifying a name gives you direct access to a primitive
+    """
+    name = _get_name_if_not_chosen(name, primitives.MacAddr)  
+    macaddr = primitives.MacAddr(value=None, name=name)
+    blocks.CURRENT.push(macaddr)
 
 # def s_from_file(value, encoding="utf-8", fuzzable=True, max_len=0, name=None, filename=None):
 #     """
