@@ -28,16 +28,9 @@ from fuzzowski.monitors import IMonitor, IThreadMonitor
 from fuzzowski.session import Session
 
 logo = """                                       
-       ■      ■       
-       ■■■■■■■■       
-      ■■■■■■■■■■      
-     ■■  ■■■■  ■■     
-     ■■  ■■■■  ■■     
-    ■■■■      ■■■■    
-   ■ ■■■■■■■■■■■■ ■   
-   ■  ■■■■■■■■■■  ■   Fuzzowski Network Fuzzer
-   ■    ■     ■   ■           🄯  Fuzzers, inc.
-       ■■     ■■               by Mario Rivas"""
+Fuzzowski Network Fuzzer
+Fuzzers, inc.
+by Mario Rivas"""
 
 
 class Fuzzowski(object):
