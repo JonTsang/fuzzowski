@@ -539,6 +539,7 @@ def s_random(value, min_length, max_length, num_mutations=25, fuzzable=True, ste
     :param name:          (Optional, def=None) Specifying a name gives you direct access to a primitive
     """
 
+    name = _get_name_if_not_chosen(name, primitives.RandomData)
     random_data = primitives.RandomData(value, min_length, max_length, num_mutations, fuzzable, step, name)
     blocks.CURRENT.push(random_data)
 
