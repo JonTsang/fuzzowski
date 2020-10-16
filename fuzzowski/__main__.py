@@ -137,7 +137,8 @@ class Fuzzowski(object):
         conn_grp.add_argument('-tn', '--transmit_full_path', dest='transmit_full_path',
                               help="Transmit the next node in the graph of the fuzzed node",
                               action='store_true')
-        recv_grp = self.parser.add_argument_group('RECV() Options')
+
+        recv_grp = self.parser.add_argument_group('Recv Options')
         recv_grp.add_argument('-nr', '--no-recv', dest='receive_data_after_each_request',
                               help="Do not recv() in the socket after each send",
                               action='store_false')
@@ -159,23 +160,23 @@ class Fuzzowski(object):
 
         fuzz_grp = self.parser.add_argument_group('Fuzz Options')
         fuzz_grp_opts = fuzz_grp.add_mutually_exclusive_group()
-        fuzz_grp_opts.add_argument('-c', '--callback', dest='callback',
-                              default=None,
+        fuzz_grp_opts.add_argument('-c', '--callback', dest='callback', default=None,
                               help="Set a callback address to fuzz with callback generator instead of normal mutations")
         fuzz_grp_opts.add_argument('--file', dest='filename', help='Use contents of a file for fuzz mutations')
 
         fuzzers = [fuzzer_class.name for fuzzer_class in IFuzzer.__subclasses__()] + ['raw']
         protocols_help = 'Requests of the protocol to fuzz, default All\n'
-        for fuzzer_protocol in IFuzzer.__subclasses__():
-            methods = ', '.join([req.__name__ for req in fuzzer_protocol.get_requests()])
-            protocols_help += '  {}: [{}]\n'.format(fuzzer_protocol.name, methods)
-        protocols_help += '  {}: [{}]'.format('raw', repr("'\x01string\n' '\x02request2\x00' ...").strip('"'))
+        #for fuzzer_protocol in IFuzzer.__subclasses__():
+        #    methods = ', '.join([req.__name__ for req in fuzzer_protocol.get_requests()])
+        #    protocols_help += '  {}: [{}]\n'.format(fuzzer_protocol.name, methods)
+        #protocols_help += '  {}: [{}]'.format('raw', repr("'\x01string\n' '\x02request2\x00' ...").strip('"'))
+
         fuzzers_grp = self.parser.add_argument_group('Fuzzers')
         fuzzers_grp.add_argument('-i', dest="include", nargs='+', help="Include modules from path[s]",
                                  metavar="PATH")
-        fuzzers_grp.add_argument("-f", "--fuzz", dest="fuzz_protocol", help='Available Protocols', required=True,
+        fuzzers_grp.add_argument("-f", dest="fuzz_protocol", help='Available Protocols', required=True,
                                  choices=fuzzers)
-        fuzzers_grp.add_argument("-r", "--requests", dest="fuzz_requests", nargs='+', default=[],
+        fuzzers_grp.add_argument("-r", dest="fuzz_requests", nargs='+', default=[],
                                  help=protocols_help, required=False)
 
         restarters_grp = self.parser.add_argument_group('Restart options')
@@ -383,7 +384,7 @@ def main():
     # print(REQUESTS)
     # print(blocks.REQUESTS)
     # print(blocks.CURRENT)
-    print(logo)
+    # print(logo)
     netfuzzer.run()
 
 
