@@ -85,20 +85,14 @@ class DHCP(IFuzzer):
         s_dword(0x00000000, name='rely_agent_ip', fuzzable=False)
         s_macaddr(name='mac_address')
         s_static(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', name='mac_address_padding')
-        s_string('servername', name='servername', size=64)
-        s_string('boot_filename', name='boot_filename', size=128)
+        s_string('servername', name='servername', size=64, fuzzable=False)
+        s_string('boot_filename', name='boot_filename', size=128, fuzzable=False)
 
         #s_size("optiond", output_format="ascii", signed=True, fuzzable=True, name='Content-Length_size')
 
         s_static(b'\x63\x82\x53\x63', name='magic_cookie')
         #Host Name Option
-        '''
-        byte = os.urandom(1)
-        n = int.from_bytes(byte, 'big')
-        s_static(b'\x0c')
-        s_static(os.urandom(1))
-        s_string('a' * n, size=n)
-        '''
+
         #Requested IP Address
         s_static(b'\x32')
         s_static(b'\x04')
@@ -109,24 +103,23 @@ class DHCP(IFuzzer):
         s_static(b'\x04')
         s_string('aaaa')
 
-        """
+        
         #Option Overload
         s_static(b'\x34')
         s_static(b'\x01')
-        s_group(b'\x01', values=[1, 2, 3])
-        """
+        s_byte(b'\x01')
 
         #DHCP message type
         s_static(b'\x35')
         s_static(b'\x01')
         s_group(b'\x01',values=DHCP_MESSAGE_TYPE)
 
-        """
+        
         #Server Identifier
         s_static(b'\x36')
         s_static(b'\x04')
         s_string('aaaa')
-        """
+
 
         #Parameter Request List
         s_static(b'\x37')
@@ -134,7 +127,7 @@ class DHCP(IFuzzer):
         with s_block(name='request_list'):
             for i in range(1, 256):
                 s_byte(i, fuzzable=True)
-        
+
         #Message
         s_static(b'\x38')
         s_byte(0x4)
@@ -177,6 +170,22 @@ class DHCP(IFuzzer):
         s_string('aaaeaaaeaaaeaaae')
 
         #Bootfile name
+        s_static(b'\x43')
+        s_byte(0x10)
+        s_string('aaaeaaaeaaaeaaae')
+
+        #Bootfile name
+        s_static(b'\x43')
+        s_byte(0x10)
+        s_string('aaaeaaaeaaaeaaae')
+
+
+        #Bootfile name
+        s_static(b'\x43')
+        s_byte(0x10)
+        s_string('aaaeaaaeaaaeaaae')
+
+        #End
         s_static(b'\xff\x00\x00\x00')
 
         # --------------------------------------------------------------- #
