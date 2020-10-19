@@ -233,7 +233,10 @@ class SocketConnection(ITargetConnection):
             if self.proto in ["tcp", "ssl"]:
                 num_sent = self._sock.send(data)
             elif self.proto == "udp":
-                num_sent = self._sock.sendto(data, (self.host, self.port))
+                if self._udp_broadcast:
+                    num_sent = self._sock.sendto(data, ('<broadcast>', self.port))
+                else:
+                    num_sent = self._sock.sendto(data, (self.host, self.port))
             elif self.proto == "raw-l2":
                 num_sent = self._sock.sendto(data, (self.host, 0))
             elif self.proto == "raw-l3":
