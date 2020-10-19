@@ -27,10 +27,7 @@ from fuzzowski.monitors import IMonitor, IThreadMonitor
 
 from fuzzowski.session import Session
 
-logo = """                                       
-Fuzzowski Network Fuzzer
-Fuzzers, inc.
-by Mario Rivas"""
+logo = """Fuzzowski Network Fuzzer"""
 
 
 class Fuzzowski(object):
@@ -58,7 +55,8 @@ class Fuzzowski(object):
                                                              proto=self.args.protocol,
                                                              bind=self.args.bind,
                                                              send_timeout=self.args.send_timeout,
-                                                             recv_timeout=self.args.recv_timeout
+                                                             recv_timeout=self.args.recv_timeout,
+                                                             udp_broadcast=self.args.udp_broadcast
                                                              )
                              )
 
@@ -136,6 +134,9 @@ class Fuzzowski(object):
                               action='store_true')
         conn_grp.add_argument('-tn', '--transmit_full_path', dest='transmit_full_path',
                               help="Transmit the next node in the graph of the fuzzed node",
+                              action='store_true')
+        conn_grp.add_argument('-br', '--broadcast', dest='udp_broadcast',
+                              help="Set to True to enable UDP broadcast",
                               action='store_true')
 
         recv_grp = self.parser.add_argument_group('Recv Options')

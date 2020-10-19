@@ -177,6 +177,9 @@ class Mutant(IMutant):
         Returns:
             bytes: Rendered value
         """
+        if isinstance(value, int):
+            print("======")
+            print("%d" % value)
         if isinstance(value, bytes):
             _rendered = value
         else:

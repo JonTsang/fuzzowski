@@ -70,13 +70,14 @@ class TestCase(object):
             for idx, edge in enumerate(self.path, start=1):  # Now we go through our path, sending each request
                 request = edge.dst
                 callback = edge.callback
+                receive = self.session.receive_data_after_each_request
 
                 if request == self.request:
                     # This is the node we are fuzzing
                     if fuzz:
                         self.logger.open_test_step(f'Fuzzing node {request.name}')
                         callback_data = self._callback_current_node(node=request, edge=edge)
-                        self.transmit(request, callback_data=callback_data)
+                        self.transmit(request, callback_data=callback_data, receive=receive)
                         fuzzed_sent = True
                     else:
                         self.logger.open_test_step(f'Transmit node {request.name}')

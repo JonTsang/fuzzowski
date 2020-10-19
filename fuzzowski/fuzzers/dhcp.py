@@ -35,6 +35,22 @@ HARDWARE_TYPE = [
     '\x21' # Asynchronous Transmission Mode (ATM)
 ]
 
+DHCP_MESSAGE_TYPE = [
+    '\x01' #DHCPDISCOVER
+    '\x02' #DHCPOFFER
+    '\x03' #DHCPREQUEST		
+    '\x04' #DHCPDECLINE		
+    '\x05' #DHCPACK			
+    '\x06' #DHCPNAK			
+    '\x07' #DHCPRELEASE		
+    '\x08' #DHCPINFORM		
+    '\x09' #DHCPLEASEQUERY		
+    '\x0a' #DHCPLEASEUNASSIGNED	11
+    '\x0b' #DHCPLEASEUNKNOWN	12
+    '\x0c' #DHCPLEASEACTIVE		13
+]
+
+
 class DHCP(IFuzzer):
     """DHCP Fuzzer
 
@@ -55,8 +71,8 @@ class DHCP(IFuzzer):
         s_static(b'\x01', name='message_type')
         #s_group(b'\x01', name='hareware_type', values=HARDWARE_TYPE)
         s_static(b'\x01', name='hareware_type')
-        s_byte(b'\x06', name='hardware_address_len', fuzzable=False)
-        s_byte(b'\x00', name='hop', fuzzable=False)
+        s_byte(0x06, name='hardware_address_len', fuzzable=False)
+        s_byte(0x00, name='hop', fuzzable=False)
         s_static(b'\xde\xad\xbe\xef', name='transaction_id')
         s_static(b'\x02\x34', name='seconds_elapsed')
         #s_random('\xde\xad\xbe\xef', min_length=4, max_length=4, name='transaction_id', fuzzable=True)
@@ -69,14 +85,12 @@ class DHCP(IFuzzer):
         s_dword(0x00000000, name='rely_agent_ip', fuzzable=False)
         s_macaddr(name='mac_address')
         s_static(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', name='mac_address_padding')
-        s_string('dhcpclient', name='servername', size=64)
-        s_string('dhcpclient', name='boot_filename', size=128)
+        s_string('servername', name='servername', size=64)
+        s_string('boot_filename', name='boot_filename', size=128)
 
         #s_size("optiond", output_format="ascii", signed=True, fuzzable=True, name='Content-Length_size')
 
         s_static(b'\x63\x82\x53\x63', name='magic_cookie')
-
-
         #Host Name Option
         '''
         byte = os.urandom(1)
@@ -88,12 +102,12 @@ class DHCP(IFuzzer):
         #Requested IP Address
         s_static(b'\x32')
         s_static(b'\x04')
-        s_string('aaaa', size=0x04)
+        s_string('aaaa')
 
         #IP Address Lease Time
         s_static(b'\x33')
         s_static(b'\x04')
-        s_string('aaaa', size=0x04)
+        s_string('aaaa')
 
         """
         #Option Overload
@@ -105,29 +119,31 @@ class DHCP(IFuzzer):
         #DHCP message type
         s_static(b'\x35')
         s_static(b'\x01')
-        s_group(b'\x01',values=[1,2,3,4,5,7,8,9])
+        s_group(b'\x01',values=DHCP_MESSAGE_TYPE)
 
+        """
         #Server Identifier
         s_static(b'\x36')
         s_static(b'\x04')
-        s_string('aaaa', size=0x04)
+        s_string('aaaa')
+        """
 
         #Parameter Request List
         s_static(b'\x37')
-        s_byte(b'\x07')
+        s_byte(0xff)
         with s_block(name='request_list'):
-            s_byte(b'\x01')
-        s_repeat('request_list', name='repeat_reqestlist', min_reps=0, max_reps=7, step=7)
-
+            for i in range(1, 256):
+                s_byte(i, fuzzable=True)
+        
         #Message
         s_static(b'\x38')
-        s_byte(b'\x38')
+        s_byte(0x4)
         s_string('aaaa')
 
         #Maximum DHCP Message Size
         s_static(b'\x39')
-        s_byte(b'\xff')
-        s_string('aaaa')
+        s_byte(0x02)
+        s_word(0xfefe)
 
         #Renewal (T1) Time Value
         s_static(b'\x3a')
@@ -141,23 +157,24 @@ class DHCP(IFuzzer):
 
         #Vendor class identifier
         s_static(b'\x3c')
-        s_random(b'\x01', min_length=1, max_length=1)
-        s_string("aaa", fuzzable=True)
+        s_static(b'\x10')
+        s_string('aaaeaaaeaaaeaaae')
 
         #Client-identifier
         s_static(b'\x3d')
-        s_static(b'\x00')
-        s_string("aaa")
+        s_static(b'\x07')
+        s_static(b'\x01') # haredware type
+        s_macaddr()
 
         #TFTP server name
         s_static(b'\x42')
-        s_byte(b'\x00')
-        s_string(b'\x00', )
+        s_byte(0x10)
+        s_string('aaaeaaaeaaaeaaae')
 
         #Bootfile name
         s_static(b'\x43')
-        s_byte(b'\x00')
-        s_string(b'\x00')
+        s_byte(0x10)
+        s_string('aaaeaaaeaaaeaaae')
 
         #Bootfile name
         s_static(b'\xff\x00\x00\x00')
