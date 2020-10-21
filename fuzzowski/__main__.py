@@ -54,9 +54,10 @@ class Fuzzowski(object):
                                                              self.args.port,
                                                              proto=self.args.protocol,
                                                              bind=self.args.bind,
+                                                             device=self.args.device,
                                                              send_timeout=self.args.send_timeout,
                                                              recv_timeout=self.args.recv_timeout,
-                                                             udp_broadcast=self.args.udp_broadcast
+                                                             broadcast=self.args.broadcast
                                                              )
                              )
 
@@ -123,6 +124,7 @@ class Fuzzowski(object):
         conn_grp.add_argument("-p", "--protocol", dest="protocol", help="Protocol (Default tcp)", default='tcp',
                               choices=['tcp', 'udp', 'ssl'])
         conn_grp.add_argument("-b", "--bind", dest="bind", type=int, help="Bind to port")
+        conn_grp.add_argument("-d", "--device", dest="device", type=str, help="Bind to device")
         conn_grp.add_argument("-st", "--send_timeout", dest="send_timeout", type=float, default=5.0,
                               help="Set send() timeout (Default 5s)")
         conn_grp.add_argument("-rt", "--recv_timeout", dest="recv_timeout", type=float, default=5.0,
@@ -135,8 +137,8 @@ class Fuzzowski(object):
         conn_grp.add_argument('-tn', '--transmit_full_path', dest='transmit_full_path',
                               help="Transmit the next node in the graph of the fuzzed node",
                               action='store_true')
-        conn_grp.add_argument('-br', '--broadcast', dest='udp_broadcast',
-                              help="Set to True to enable UDP broadcast",
+        conn_grp.add_argument('-br', '--broadcast', dest='broadcast',
+                              help="Set to True to enable broadcast",
                               action='store_true')
 
         recv_grp = self.parser.add_argument_group('Recv Options')

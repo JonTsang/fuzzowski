@@ -182,7 +182,7 @@ def get_connect_python(socket_conn: SocketConnection) -> str:
         code += 'sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n'
         if socket_conn.bind:
             code += 'sock.bind(({},{}))\n'.format(repr(socket_conn.bind[0]), socket_conn.bind[1])
-        if socket_conn._udp_broadcast:
+        if socket_conn._broadcast:
             code += 'sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)\n'
     elif socket_conn.proto == "raw-l2":
         code += 'sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW)\n'
