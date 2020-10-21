@@ -36,8 +36,8 @@ class SocketConnection(ITargetConnection):
         tcp_connection = SocketConnection(host='127.0.0.1', port=17971)
         udp_connection = SocketConnection(host='127.0.0.1', port=17971, proto='udp')
         udp_connection_2_way = SocketConnection(host='127.0.0.1', port=17971, proto='udp', bind=('127.0.0.1', 17972)
-        udp_broadcast = SocketConnection(host='127.0.0.1', port=17971, proto='udp', bind=('127.0.0.1', 17972),
-                                         udp_broadcast=True)
+        broadcast = SocketConnection(host='127.0.0.1', port=17971, proto='udp', bind=('127.0.0.1', 17972),
+                                         broadcast=True)
         raw_layer_2 = (host='lo', proto='raw-l2')
         raw_layer_2 = (host='lo', proto='raw-l2',
                        l2_dst='\\xFF\\xFF\\xFF\\xFF\\xFF\\xFF', ethernet_proto=socket_connection.ETH_P_IP)
@@ -57,7 +57,7 @@ class SocketConnection(ITargetConnection):
             See "if_ether.h" in Linux documentation for more options.
         l2_dst (str): Layer 2 destination address (e.g. MAC address). Used only by 'raw-l3'.
             Default '\xFF\xFF\xFF\xFF\xFF\xFF' (broadcast).
-        udp_broadcast (bool): Set to True to enable UDP broadcast. Must supply appropriate broadcast address for send() to
+        broadcast (bool): Set to True to enable UDP broadcast. Must supply appropriate broadcast address for send() to
             work, and '' for bind host for recv() to work.
     """
     _PROTOCOLS = ["tcp", "ssl", "udp", "raw-l2", "raw-l3"]
@@ -73,22 +73,24 @@ class SocketConnection(ITargetConnection):
                  port=None,
                  proto="tcp",
                  bind=None,
+                 device=None,
                  send_timeout=5.0,
                  recv_timeout=5.0,
                  ethernet_proto=ETH_P_IP,
                  l2_dst='\xFF' * 6,
-                 udp_broadcast=False):
+                 broadcast=False):
         self.MAX_PAYLOADS["udp"] = helpers.get_max_udp_size()
 
         self.host = host
         self.port = port
         self.bind = bind
+        self.device = device
         self._recv_timeout = recv_timeout
         self._send_timeout = send_timeout
         self.proto = proto.lower()
         self.ethernet_proto = ethernet_proto
         self.l2_dst = l2_dst
-        self._udp_broadcast = udp_broadcast
+        self._broadcast = broadcast
 
         self._sock = None
 
@@ -121,7 +123,9 @@ class SocketConnection(ITargetConnection):
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             if self.bind:
                 self._sock.bind(('0.0.0.0', self.bind))
-            if self._udp_broadcast:
+            if self.device:
+                self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, str(self.device+'\0').encode('utf-8'))
+            if self._broadcast:
                 self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
         elif self.proto == "raw-l2":
             self._sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW)
@@ -233,7 +237,10 @@ class SocketConnection(ITargetConnection):
             if self.proto in ["tcp", "ssl"]:
                 num_sent = self._sock.send(data)
             elif self.proto == "udp":
-                num_sent = self._sock.sendto(data, (self.host, self.port))
+                if self._broadcast:
+                    num_sent = self._sock.sendto(data, ('<broadcast>', self.port))
+                else:
+                    num_sent = self._sock.sendto(data, (self.host, self.port))
             elif self.proto == "raw-l2":
                 num_sent = self._sock.sendto(data, (self.host, 0))
             elif self.proto == "raw-l3":
@@ -273,11 +280,12 @@ class SocketConnection(ITargetConnection):
                                       port=self.port,
                                       proto=self.proto,
                                       bind=self.bind,
+                                      device=self.device,
                                       send_timeout=self._send_timeout,
                                       recv_timeout=self._recv_timeout,
                                       ethernet_proto=self.ethernet_proto,
                                       l2_dst=self.l2_dst,
-                                      udp_broadcast=self._udp_broadcast)
+                                      broadcast=self._broadcast)
         return new_socket
 
 

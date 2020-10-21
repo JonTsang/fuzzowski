@@ -122,6 +122,7 @@ class Session(object):
             self.session_filename = None
 
         self.logger = FuzzLogger(fuzz_loggers)
+        self.receive_data_after_each_request = receive_data_after_each_request
 
         if self.session_filename is not None:
             self.logger.log_info('Using session file: {}'.format(self.session_filename))

@@ -1,16 +1,4 @@
 #  Fuzzowski
-```
-       █      █       
-       ████████       
-      ██████████      
-     ██  ████  ██     
-     ██  ████  ██     
-    ████      ████    
-   █ ████████████ █   
-   █  ██████████  █   Fuzzowski Network Fuzzer
-   █    █     █   █           🄯  Fuzzers, inc.
-       ██     ██                by Mario Rivas
-```
 
 #
 
@@ -61,31 +49,17 @@ pip install -r requirements.txt
 ```
 #### Help
 ```
-usage: python -m fuzzowski [-h] [-p {tcp,udp,ssl}] [-b BIND] [-st SEND_TIMEOUT]
-                    [-rt RECV_TIMEOUT] [--sleep-time SLEEP_TIME] [-nc] [-tn]
-                    [-nr] [-nrf] [-cr]
-                    [--threshold-request CRASH_THRESHOLD_REQUEST]
-                    [--threshold-element CRASH_THRESHOLD_ELEMENT]
-                    [--ignore-aborted] [--ignore-reset] [--error-fuzz-issues]
-                    [-c CALLBACK | --file FILENAME] -f
-                    {cops,dhcp,ipp,lpd,netconf,telnet_cli,tftp,raw}
-                    [-r FUZZ_REQUESTS [FUZZ_REQUESTS ...]]
-                    [--restart module_name [args ...]]
-                    [--restart-sleep RESTART_SLEEP_TIME]
-                    [--monitors {IPPMon} [{IPPMon} ...]] [--path PATH]
-                    [--document_url DOCUMENT_URL]
-                    host port
+usage: python -m fuzzowski [-h] [-p {tcp,udp,ssl}] [-b BIND] [-st SEND_TIMEOUT] [-rt RECV_TIMEOUT] [--sleep-time SLEEP_TIME]
+                   [-nc] [-tn] [-br] [-nr] [-nrf] [-cr] [--threshold-request CRASH_THRESHOLD_REQUEST]
+                   [--threshold-element CRASH_THRESHOLD_ELEMENT] [--error-fuzz-issues] [-c CALLBACK | --file FILENAME]
+                   [-i PATH [PATH ...]] -f {bacnet,dhcp,ipp,lpd,modbus,telnet_cli,tftp,raw}
+                   [-r FUZZ_REQUESTS [FUZZ_REQUESTS ...]] [--restart module_name [args ...]]
+                   [--restart-sleep RESTART_SLEEP_TIME]
+                   [--monitors {BACnetMon,IPPMon,modbusMon} [{BACnetMon,IPPMon,modbusMon} ...]] [--path PATH]
+                   [--document_url DOCUMENT_URL]
+                   host port
 
-       █      █       
-       ████████       
-      ██████████      
-     ██  ████  ██     
-     ██  ████  ██     
-    ████      ████    
-   █ ████████████ █   
-   █  ██████████  █   Fuzzowski Network Fuzzer
-   █    █     █   █           🄯  Fuzzers, inc.
-       ██     ██       
+Fuzzowski Network Fuzzer
 
 positional arguments:
   host                  Destination Host
@@ -105,10 +79,11 @@ Connection Options:
   --sleep-time SLEEP_TIME
                         Sleep time between each test (Default 0)
   -nc, --new-conns      Open a new connection after each packet of the same test
-  -tn, --transmit-next-node
+  -tn, --transmit_full_path
                         Transmit the next node in the graph of the fuzzed node
+  -br, --broadcast      Set to True to enable UDP broadcast
 
-RECV() Options:
+Recv Options:
   -nr, --no-recv        Do not recv() in the socket after each send
   -nrf, --no-recv-fuzz  Do not recv() in the socket after sending a fuzzed request
   -cr, --check-recv     Check that data has been received in recv()
@@ -118,8 +93,6 @@ Crashes Options:
                         Set the number of allowed crashes in a Request before skipping it (Default 9999)
   --threshold-element CRASH_THRESHOLD_ELEMENT
                         Set the number of allowed crashes in a Primitive before skipping it (Default 3)
-  --ignore-aborted      Ignore ECONNABORTED errors
-  --ignore-reset        Ignore ECONNRESET errors
   --error-fuzz-issues   Log as error when there is any connection issue in the fuzzed node
 
 Fuzz Options:
@@ -128,30 +101,25 @@ Fuzz Options:
   --file FILENAME       Use contents of a file for fuzz mutations
 
 Fuzzers:
-  -f {cops,dhcp,ipp,lpd,netconf,telnet_cli,tftp,raw}, --fuzz {cops,dhcp,ipp,lpd,netconf,telnet_cli,tftp,raw}
+  -i PATH [PATH ...]    Include modules from path[s]
+  -f {bacnet,dhcp,ipp,lpd,modbus,telnet_cli,tftp,raw}
                         Available Protocols
-  -r FUZZ_REQUESTS [FUZZ_REQUESTS ...], --requests FUZZ_REQUESTS [FUZZ_REQUESTS ...]
+  -r FUZZ_REQUESTS [FUZZ_REQUESTS ...]
                         Requests of the protocol to fuzz, default All
-                          dhcp: [opt82]
-                          ipp: [http_headers, get_printer_attribs, print_uri_message, send_uri, get_jobs, get_job_attribs]
-                          lpd: [long_queue, short_queue, ctrl_file, data_file, remove_job]
-                          telnet_cli: [commands]
-                          tftp: [read]
-                          raw: ['\x01string\n' '\x02request2\x00' ...]
 
 Restart options:
   --restart module_name [args ...]
                         Restarter Modules:
                           run: '<executable> [<argument> ...]' (Pass command and arguments within quotes, as only one argument)
-                          smartplug: It will turn off and on the Smart Plug
-                          teckin: <PLUG_IP>
   --restart-sleep RESTART_SLEEP_TIME
                         Set sleep seconds after a crash before continue (Default 5)
 
 Monitor options:
-  --monitors {IPPMon} [{IPPMon} ...], -m {IPPMon} [{IPPMon} ...]
+  --monitors {BACnetMon,IPPMon,modbusMon} [{BACnetMon,IPPMon,modbusMon} ...], -m {BACnetMon,IPPMon,modbusMon} [{BACnetMon,IPPMon,modbusMon} ...]
                         Monitor Modules:
+                          BACnetMon: Sends a query for Property Identifier id to the target in order to get the BACnet device information and check the response
                           IPPMon: Sends a get-attributes IPP message to the target
+                          modbusMon: Sends a query for MODBUS device id to the target and check the response
 
 Other Options:
   --path PATH           Set path when fuzzing HTTP based protocols (Default /)

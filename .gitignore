@@ -106,4 +106,7 @@ venv.bak/
 fuzzowski_results/
 .idea
 
+#vscode
+.vscode
 
+*.session
