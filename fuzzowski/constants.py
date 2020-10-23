@@ -38,7 +38,7 @@ STYLE = {
     'test_case': 'bold gold',
     'step': 'bold violet',
     'send': 'cyan',
-    'receive': 'cyan',
+    'receive': 'orange',
     'pass': 'bold green',
     'warning': 'bold orange',
 
