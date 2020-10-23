@@ -1,6 +1,7 @@
 """
 Forked from BooFuzz [https://github.com/jtpereyda/boofuzz]
 """
+import os
 import math
 import ssl
 import struct
@@ -157,9 +158,17 @@ class SocketConnection(ITargetConnection):
 
         # if SSL is requested, then enable it.
         if self.proto == "ssl":
-            ssl_sock = ssl.wrap_socket(self._sock)
+            try:
+                ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+                ctx.keylog_filename = "/tmp/fuzzowski_sslkeylogfile"
+                ssl_sock = ctx.wrap_socket(self._sock)
+                self._sock = ssl_sock
+            except ssl.SSLError:
+                raise exception.FuzzowskiTargetConnectionFailedError('SSL connection error')
+
+            #ssl_sock = ssl.wrap_socket(self._sock)
             # TODO: Python3 change, maybe should use a context instead of deprecated ssl.wrap_socket?
-            self._sock = ssl_sock
+            #self._sock = ssl_sock
             # self._sock = httplib.FakeSocket(self._sock, ssl_sock)
 
     def recv(self, max_bytes):
@@ -177,12 +186,8 @@ class SocketConnection(ITargetConnection):
                 data = self._sock.recv(max_bytes)
             elif self.proto == 'udp':
                 # Not necessary to bind to a port to use this, right?
-                # if self.bind:
                 data, _ = self._sock.recvfrom(max_bytes)
-                # else:
-                #     raise exception.FuzzowskiRuntimeError(
-                #         "SocketConnection.recv() for UDP requires a bind address/port."
-                #         " Current value: {}".format(self.bind))
+
             elif self.proto in ['raw-l2', 'raw-l3']:
                 # receive on raw is not supported. Since there is no specific protocol for raw, we would just have to
                 # dump everything off the interface anyway, which is probably not what the user wants.
