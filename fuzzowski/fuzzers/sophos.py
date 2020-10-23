@@ -149,7 +149,7 @@ class Sophos(IFuzzer):
     def commands(session: Session) -> None:
         session.connect(s_get('login'))
         session.connect(s_get('login'), s_get('auth'), callback=Sophos.cb_get_jsessionid)
-        session.connect(s_get('auth'))
+        #session.connect(s_get('auth'))
         session.connect(s_get('auth'), s_get('securitypolicy'), callback=Sophos.cb_set_jsessionid)
 
     @staticmethod
