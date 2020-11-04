@@ -90,6 +90,7 @@ class Fuzzowski(object):
 
         elif self.fuzz_methods is not None:
             for fuzz_method in self.fuzz_methods:
+                # Fuzz method of each fuzzer
                 fuzz_method(self.session)
         else:
             raise Exception("Impossibru!")
