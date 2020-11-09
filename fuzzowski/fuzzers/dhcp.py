@@ -182,7 +182,7 @@ class DHCP(IFuzzer):
             # Always set to 2
             (13, 22, 26, 57, 66, 67,), 
             # Always set to 4
-            (16, 24, 28, 32, 35, 38, 51, 58, 59, 65, 68, 69, 70, 71,
+            (2, 16, 24, 28, 32, 35, 38, 51, 58, 59, 65, 68, 69, 70, 71,
              72, 73, 74, 75, 76, 91, 152, 153, 154, 155, 159),          
             # 4+ in multiples of 4
             (3, 4, 5, 6, 7, 8, 9, 10, 11, 41, 42, 44, 45, 48, 49, 85,
@@ -207,24 +207,18 @@ class DHCP(IFuzzer):
             style_list[6]: 6,
         }
 
-        '''
-        s_static(b'\x02') #Time Offset
-        s_size("2", fuzzable=False)
-        with s_block("2"):
-            s_string('%n%n%n%n%n%n%n%n%n%n')
-        '''
 
-        # Options 3 to 11
-        for i in range(3, 222):
-            for style in style_list:
-                if i in style:
-                    DHCP.dhcp_option_builder(name=str(i), option_type=i, style=option_type_style[style])
-
+        '''
         #50 Requested IP Address
         s_static(b'\x32') #Requested IP Address
         s_size("50", length=1, fuzzable=False)
         with s_block("50"):
             s_string('%n%n', size=4, fuzzable=True)
+        '''
+        
+        s_static(b'\x17')
+        s_static(b'\x01')
+        s_byte(0x01)
 
         #52 Option Overload
         '''
@@ -237,11 +231,12 @@ class DHCP(IFuzzer):
         s_static(b'\x01')
         s_group(b'\x01',values=DHCP_MESSAGE_TYPE['DHCPDISCOVER'])
 
-
+        '''
         #54 Server Identifier
         if not s_get('discover'):
             DHCP.dhcp_option_builder(name='54', option_type=b'\x36', style=3)
-
+        '''
+        '''
         #55 Parameter Request List
         s_static(b'\x37')
         s_byte(0xff)
@@ -254,7 +249,22 @@ class DHCP(IFuzzer):
         s_static(b'\x07')
         s_static(b'\x01') # haredware type
         s_macaddr()
+        '''
 
+        #82 Relay Agent Information
+        s_static(b'\x52')
+        s_size("82", length=1, fuzzable=False)
+        with s_block("82"):
+            for i in range(1, 3):
+                DHCP.dhcp_option_builder(name='sub'+str(i), option_type=i, style=5)
+
+            s_static(b'\x09')
+            s_size("82_sub_09", length=1, fuzzable=False)
+            with s_block("82_sub_09"):
+                s_dword(0x12b0, endian='>', fuzzable=False)
+                s_string("aaaaaaa")
+
+ 
         '''
         #78 SLP Directory Agent Option
         # Length:
@@ -315,22 +325,26 @@ class DHCP(IFuzzer):
         with s_block("121"):
             s_string('aaaeaaaeaaaeaaae')
         
-        s_static(b'\x7a') #CCC, CableLabs Client Configuration
+        #122 CCC, CableLabs Client Configuration
+        s_static(b'\x7a')
         s_size("122", fuzzable=False)
         with s_block("122"):
             s_string('aaaeaaaeaaaeaaae')
 
-        s_static(b'\x7b') #GeoConf
+        #123 GeoConf
+        s_static(b'\x7b')
         s_size("123", fuzzable=False)
         with s_block("123"):
             s_string('aaaeaaaeaaaeaaae')
 
-        s_static(b'\x7c') #Vendor-Identifying Vendor Class
+        #124 Vendor-Identifying Vendor Class
+        s_static(b'\x7c')
         s_size("124", fuzzable=False)
         with s_block("124"):
             s_string('aaaeaaaeaaaeaaae')
 
-        s_static(b'\x7d') #Vendor Identifying Vendor Specific
+        #125 Vendor Identifying Vendor Specific
+        s_static(b'\x7d')
         s_size("125", fuzzable=False)
         with s_block("125"):
             s_string('aaaeaaaeaaaeaaae')
@@ -341,47 +355,55 @@ class DHCP(IFuzzer):
         with s_block("125"):
             s_string('aaaeaaaeaaaeaaae')
        
-       #208 pxelinux.magic (string) = 241.0.116.126
+        #208 pxelinux.magic (string) = 241.0.116.126
         s_static(b'\xd0')
         s_size("208", fuzzable=False)
         with s_block("208"):
             s_string('241.0.116.126', fuzzable=False)
 
-        '''
-        '''
-
-        s_static(b'\xdc') #pxelinux.configfile
+        #209 pxelinux.configfile
+        s_static(b'\xd1') 
         s_size("209", fuzzable=False)
         with s_block("209"):
             s_string('aaaeaaaeaaaeaaae')
 
-        s_static(b'\xdc') #pxelinux.pathprefix
+        #210 pxelinux.pathprefix
+        s_static(b'\xd2')
         s_size("210", fuzzable=False)
         with s_block("210"):
             s_string('aaaeaaaeaaaeaaae')
 
-        s_static(b'\xdc') #pxelinux.reboottime
+        #211 pxelinux.reboottime
+        s_static(b'\xd3')
         s_size("211", fuzzable=False)
         with s_block("211"):
             s_string('aaaeaaaeaaaeaaae')
 
-        s_static(b'\xdc') #Subnet Allocation (Cisco Systems)
+        #220 Subnet Allocation (Cisco Systems)
+        s_static(b'\xdc')
         s_size("220", fuzzable=False)
         with s_block("220"):
             s_string('aaaeaaaeaaaeaaae')
 
-
-        s_static(b'\xdd') #Virtual Subnet Allocation
+        #221 Virtual Subnet Allocation
+        s_static(b'\xdd')
         s_size("221", fuzzable=False)
         with s_block("221"):
             s_string('aaaeaaaeaaaeaaae')
         '''
+        '''
+        # ----------Default defined options----------------------------- #
+        for i in range(2, 222):
+            for style in style_list:
+                if i in style:
+                    DHCP.dhcp_option_builder(name=str(i), option_type=i, style=option_type_style[style])
 
 
         # ------Private Use-Options----224~254-------------------------- #
-        #s_static(b'\xe0')
         for i in range(224, 255):
-            DHCP.dhcp_option_builder(name=str(i), option_type=i, style=6)
+            DHCP.dhcp_option_builder(name=str(i), option_type=i, style=7)
+        '''
+
 
     @staticmethod
     def dhcp_option_builder(name: str, option_type: int, style: int, 
@@ -394,32 +416,25 @@ class DHCP(IFuzzer):
             option_type: DHCP Options types
             sytle:  DHCP Option style
 
-                0 -> Length: Always set to 1.
-                    Contents: flag
-                1 -> Length: Always set to 1.
-                    Contents: list
-                2 -> Length: Always set to 2.
-                    Contents: length
+                0 -> Length: Always set to 1
+                1 -> Length: Always set to 1 (0x00 or 0x01)
+                2 -> Length: Always set to 2
                 3 -> Length: Always set to 4
-                    Contents: IP address, 32 bits
                 4 -> Length: 4+ in multiples of 4
-                    Contents: IP address, 32 bits, One or more IPv4 addresses
-                5 -> Length: 8+ in multiples of 8
-                    Contents:
-                6 -> Length: 1+
-                    Contents: Variable length
+                5 -> Length: Always set to 8
+                6 -> Length: 8+ in multiples of 8
+                7 -> Length: 1+
         '''
-        if style == 100:
-            return
 
         switch = {
             0: lambda: s_byte(b'a', fuzzable=True),
             1: lambda: s_group(b'\x00', values=['\x00', '\x01']),
             2: lambda: s_word(0xffff, endian='>', fuzzable=False),
-            3: lambda: s_string('%n%n', size=4, fuzzable=False),
-            4: lambda: s_string('%n%n'*4, size=16, fuzzable=False),
-            5: lambda: s_string('%n%n%n%n'*4, size=32, fuzzable=True),
-            6: lambda: s_string("%n"*32),
+            3: lambda: s_string('%n%n', size=4, fuzzable=True),
+            4: lambda: s_string('%n%n'*4, size=16, fuzzable=True),
+            5: lambda: s_string('%n%n'*2, size=8, fuzzable=True),
+            6: lambda: s_string('%n%n'*8, size=32, fuzzable=True),
+            7: lambda: s_string('%n%n'*32),
         }
 
         s_static(option_type.to_bytes(1, 'big'))
